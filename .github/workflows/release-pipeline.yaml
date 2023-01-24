@@ -28,15 +28,15 @@ jobs:
 
       - name: Terraform Init
         id: init
-        working-directory: terraform/projects/pipeline
+        working-directory: roots/backend
         run: terraform init
 
       - name: Terraform Validate
         id: validate
-        working-directory: terraform/projects/pipeline
+        working-directory: roots/backend
         run: terraform validate -no-color
 
       - name: Terraform Apply
         id: apply
-        working-directory: .
+        working-directory: roots/backend
         run: terraform apply --auto-aprove -no-color
