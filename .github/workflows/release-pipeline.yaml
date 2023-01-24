@@ -1,0 +1,42 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release-*"
+    paths:
+      - 'terraform/projects/pipeline/**'
+      - '.github/workflows/release-pipeline.yaml'
+
+jobs:
+  terraform:
+    name: Pipeline Deploy
+    runs-on: ubuntu-latest
+    # giving it a terraform concurrency to prevent deploy and PR checker lock conflict
+    concurrency: terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.9
+          cli_config_credentials_token: ${{ secrets.TF_DEV_TOKEN }}
+
+      - name: Terraform Init
+        id: init
+        working-directory: terraform/projects/pipeline
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        working-directory: terraform/projects/pipeline
+        run: terraform validate -no-color
+
+      - name: Terraform Apply
+        id: apply
+        working-directory: .
+        run: terraform apply --auto-aprove -no-color

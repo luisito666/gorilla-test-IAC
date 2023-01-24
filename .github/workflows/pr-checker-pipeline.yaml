@@ -1,0 +1,80 @@
+name: PR checker
+
+on:
+  pull_request:
+    branches:
+      - "main"
+      - "release-*"
+    paths:
+      - 'terraform/projects/pipeline/**'
+      - '.github/workflows/pr-checker-pipeline.yaml'
+
+jobs:
+  terraform:
+    name: Pipeline PR checker
+    runs-on: ubuntu-latest
+    # giving it a terraform concurrency to prevent deploy and PR checker lock conflict
+    concurrency: terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.9
+          cli_config_credentials_token: ${{ secrets.TF_DEV_TOKEN }}
+
+      - name: Terraform Init
+        id: init
+        working-directory: roots/backend
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        working-directory: roots/backend
+        run: terraform validate -no-color
+
+      - name: Terraform Format
+        id: format
+        working-directory: roots/backend
+        run: terraform fmt -check
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: .
+        run: terraform plan -no-color
+        continue-on-error: true
+
+      - uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Pipline PR checker results:
+            - Initialization \`${{ steps.init.outcome }}\`
+            - Validation \`${{ steps.validate.outcome }}\`
+            - Plan \`${{ steps.plan.outcome }}\`
+
+            <details>
+            <summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
