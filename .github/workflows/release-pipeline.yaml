@@ -39,4 +39,4 @@ jobs:
       - name: Terraform Apply
         id: apply
         working-directory: roots/backend
-        run: terraform apply --auto-aprove -no-color
+        run: terraform plan --auto-aprove -no-color
