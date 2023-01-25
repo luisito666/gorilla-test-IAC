@@ -9,7 +9,7 @@ provider "random" {
 
 terraform {
   backend "s3" {
-    bucket  = "terraform-states-vps-hosting"
+    bucket  = "terraform-states-vps-hosting-netluna"
     key     = "backend.tfstate"
     region  = "us-east-1"
     encrypt = true
