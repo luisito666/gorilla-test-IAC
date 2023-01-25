@@ -10,3 +10,8 @@ variable "cluster_name" {
   default = "main_cluster"
   type    = string
 }
+
+variable "ecr_name" {
+  default = "timeoff-registry"
+  type = string
+}
