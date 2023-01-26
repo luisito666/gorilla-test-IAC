@@ -1,6 +1,6 @@
-# HQIF terraform #
+# terraform #
 
-HQIF terraform has all infraestructure as code for the entire stack.
+terraform has all infraestructure as code for the entire stack.
 
 ### How do I get set up? ###
 
@@ -9,19 +9,7 @@ HQIF terraform has all infraestructure as code for the entire stack.
 * Configusre your AWS Profile [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
 * Install kubectl [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 
-The roots folder has the different terraform parts for deploying different pieces of the infrastructure. 
 
-1. roots/backend: The backend root contains all configuration files for deploy EKS cluster in AWS. The application module within has database and redis also include admin, api, marketdata and nodefix.
-2. roots/frontend: this module deploys the frontend application with cloudfront.
-3. roots/model_scripts: this deploys all c++ models in kubernetes under the model-scripts namespace.
-
-### First deployment?
-
-You need to configure a few resources in AWS and update terraform.tfvars to run.
-
-1. Create an S3 bucket for the frontend and update var `code_store_bucket` with the bucket name.
-2. Make sure all required containers are in the ECR registry and that you have access to it.
-3. Create a VPC and update var `vpc_id` with the id.
 
 ### Review the changes to apply.
 
@@ -67,20 +55,6 @@ By namespace
 ```bash
 kubectl get deployment -n namespace
 ```
-
-#### Namespaces
-
-Main:
-
-* default: api, redis, marketdata scripts and tt-fix stream
-* model-scripts: all other model scripts
-* timescale: database
-
-Utils:
-
-* grafana: visualisation dashboard
-* kubernetes-dashboard: Kube management dashboard
-* prometheus: metrics collection system
 
 ### How to view all pods
 
