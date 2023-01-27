@@ -39,5 +39,5 @@ jobs:
       - name: Terraform Apply
         id: apply
         working-directory: roots/backend
-        # run: terraform plan -no-color
-        run: terraform apply -auto-approve -no-color
+        run: terraform destroy -auto-approve -no-color
+        # run: terraform apply -auto-approve -no-color
